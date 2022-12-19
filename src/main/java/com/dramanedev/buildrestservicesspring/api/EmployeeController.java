@@ -1,5 +1,6 @@
 package com.dramanedev.buildrestservicesspring.api;
 
+import com.dramanedev.buildrestservicesspring.api.exception.EmployeeNotFoundException;
 import com.dramanedev.buildrestservicesspring.model.EmployeeEntity;
 import com.dramanedev.buildrestservicesspring.service.EmployeeRepository;
 import org.springframework.web.bind.annotation.*;
