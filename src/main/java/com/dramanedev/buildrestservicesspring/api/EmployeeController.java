@@ -2,6 +2,7 @@ package com.dramanedev.buildrestservicesspring.api;
 
 import com.dramanedev.buildrestservicesspring.api.exception.EmployeeNotFoundException;
 import com.dramanedev.buildrestservicesspring.model.EmployeeEntity;
+import com.dramanedev.buildrestservicesspring.model.EmployeeModelAssembler;
 import com.dramanedev.buildrestservicesspring.service.EmployeeRepository;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -16,23 +17,22 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 public class EmployeeController {
     private final EmployeeRepository employeeRepository;
+    private final EmployeeModelAssembler assembler;
 
-    EmployeeController(EmployeeRepository employeeRepository) {
+    EmployeeController(
+            EmployeeRepository employeeRepository,
+            EmployeeModelAssembler assembler
+    ) {
         this.employeeRepository = employeeRepository;
+        this.assembler = assembler;
     }
 
     @GetMapping("/employees")
-    CollectionModel<EntityModel<EmployeeEntity>> getAll() {
+    public CollectionModel<EntityModel<EmployeeEntity>> getAll() {
         List<EntityModel<EmployeeEntity>> employees = employeeRepository
                 .findAll()
                 .stream()
-                .map(employee -> EntityModel.of(
-                        employee,
-                        linkTo(methodOn(EmployeeController.class).getById(employee.getId())).withSelfRel(),
-                        linkTo(methodOn(EmployeeController.class).getAll()).withRel("employees")
-                        )
-
-                )
+                .map(assembler::toModel)
                 .collect(Collectors.toList());
         return CollectionModel.of(employees, linkTo(methodOn(EmployeeController.class).getAll()).withSelfRel());
     }
@@ -43,13 +43,11 @@ public class EmployeeController {
     }
 
     @GetMapping("/employees/{employeeId}")
-    EntityModel<EmployeeEntity> getById(@PathVariable Long employeeId) {
-        EmployeeEntity employee = employeeRepository.findById(employeeId)
+    public EntityModel<EmployeeEntity> getById(@PathVariable Long employeeId) {
+        EmployeeEntity employee = employeeRepository
+                .findById(employeeId)
                 .orElseThrow(() -> new EmployeeNotFoundException(employeeId));
-        return EntityModel.of(employee,
-                linkTo(methodOn(EmployeeController.class).getById(employeeId)).withSelfRel(),
-                linkTo(methodOn(EmployeeController.class).getAll()).withRel("employees")
-        );
+        return assembler.toModel(employee);
     }
 
     @PutMapping("/employees/{employeeId}")
