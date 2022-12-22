@@ -18,7 +18,8 @@ public class LoadDatabase {
             log.info(
                     "Preloading " + employeeRepository.save(
                             new EmployeeEntity(
-                                    "KAMISSOKO Dramane",
+                                    "Dramane",
+                                    "KAMISSOKO",
                                     "Developer"
                             )
                     )
@@ -26,8 +27,9 @@ public class LoadDatabase {
             log.info(
                     "Preloading " + employeeRepository.save(
                             new EmployeeEntity(
-                                    "Kamissoko Dramane",
-                                    "Developer"
+                                    "Dramane",
+                                    "KAMISSOKO",
+                                    "Web Developer"
                             )
                     )
             );
